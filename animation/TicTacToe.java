@@ -1,48 +1,63 @@
 package animation;
+
 import hsa2.GraphicsConsole;
+
+import java.util.Random;
 //https://github.com/salamander2/HSA2
+
+
+class GameCompletedException extends Exception {
+    public GameCompletedException(String errorMessage) {
+        super(errorMessage);
+    }
+}
+
 
 public class TicTacToeMain {
 
     static GraphicsConsole window;
-    static char gameBoard;
-    static int row;
-    static int col;
-    static String[][] board = new String [3][3];
     static String[][] gameField = {
-            {"___","|","___","|","___"},
-            {"___","|","___","|","___"},
-            {"___","|","___","|","___"}
+            {"___", "|", "___", "|", "___"},
+            {"___", "|", "___", "|", "___"},
+            {"___", "|", "___", "|", "___"}
     };
-    static boolean computerMoveValid = false;
+
+    static String[][] cleanGameField = {
+            {"___", "|", "___", "|", "___"},
+            {"___", "|", "___", "|", "___"},
+            {"___", "|", "___", "|", "___"}
+    };
+
+    static boolean[] positionFilledUp = new boolean[]{false, false, false, false, false, false, false, false, false};
+
     static int computerMove;
-    static int position;
     static int move;
     static int roundsCounter = 0;
     static String userInput;
-    static boolean playerPositionValid = false;
-    static String character;
-    static boolean win = false;
 
+    static int nextMove = 1;
+    static int humanWins = 2;
+    static int computerWins = 3;
+    static int itsATie = 4;
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, GameCompletedException {
 //        window = new Console(80, 80);
         window = new GraphicsConsole(300, 300);
         window.setLocation(100, 100);
         printBoard(gameField);
-        for (roundsCounter = 0; roundsCounter <= 9;) {
+        for (roundsCounter = 0; roundsCounter <= 9; ) {
             playGame();
         }
 
     }
 
-    public static void printBoard(String [][] gameBoard){
+    public static void printBoard(String[][] gameBoard) {
 
         window.println("Tic Tac Toe");
         printEquals(11);
 
-        for(String[] row : gameBoard){
-            for( String i : row){
+        for (String[] row : gameBoard) {
+            for (String i : row) {
                 window.print(i);
             }
             window.println();
@@ -51,7 +66,7 @@ public class TicTacToeMain {
 
     }
 
-    public static void addDelayInSeconds(int maxDelay) throws InterruptedException{
+    public static void addDelayInSeconds(int maxDelay) throws InterruptedException {
         for (int i = maxDelay; i > 0; i--) {
             window.print("..");
             Thread.sleep(1000);
@@ -67,255 +82,221 @@ public class TicTacToeMain {
         window.println();
     }
 
-    public static void playGame() throws InterruptedException {
-        while (playerPositionValid == false) {
+    public static void playGame() throws InterruptedException, NumberFormatException {
+
+        String humanMarker = " X ";
+        String computerMarker = " O ";
+
+        //Human moves
+        boolean repeatUntilValidKey = true;
+        while (repeatUntilValidKey) {
+
             window.println();
             printEquals(11);
             window.print("Your move: ");
             userInput = window.readLine();
             window.println();
-            window.clear();
+
             try {
                 move = Integer.parseInt(userInput);
-                playerPositionValid = true;
+                if (move < 1 || move > 9) {
+                    window.println(move + " is outside range. Enter between 1 and 9");
+                    continue;
+                }
+                if (positionFilledUp[move - 1]) {
+                    window.println(move + " already occupied. Retry");
+                    continue;
+                }
+            } catch (NumberFormatException e) {
+                window.println(move + " is an invalid number. Retry");
+                continue;
+            }
 
-            }
-            catch(NumberFormatException e) {
-                window.clear();
-                window.println("Invalid entry. Please retry");
-            }
+            window.println("");
+            window.print("You moved: " + move);
+            window.println("");
+            printEquals(12);
+
+            markPosition(humanMarker, move);
+            repeatUntilValidKey = false;
         }
 
-        window.println("");
-        window.print("You moved: " + move);
-        window.println("");
-        printEquals(12);
-
-        if (playerPositionValid == true) {
-            positionMark(move, 1, gameField);
-
+        //Verdict
+        try {
+            int matchResult = winCheck();
+            if (matchResult == humanWins || matchResult == computerWins || matchResult == itsATie) {
+                if (!rematch()) {
+                    throw new GameCompletedException("Game Over");
+                }
+            }
+        } catch (GameCompletedException e) {
+            window.println(e.getMessage());
+            System.exit(0);
         }
 
-        window.print("Computer to move in ");
+        roundsCounter = roundsCounter++;
+
+        //Computer moves
+        window.print("computer makes the next move in ");
         addDelayInSeconds(3);
         printEquals(20);
 
-        computerMove();
-        if (computerMoveValid == true) {
+        computerMove = computerMoves();
 
-            window.println();
-            window.println("Computer moved: " + computerMove);
-            printEquals(17);
-        }
-        positionMark(computerMove, 2, gameField);
-        computerMoveValid = false;
-        playerPositionValid = false;
-        if (winCheck() == false) {
-            System.exit(0);
-        };
-        roundsCounter = roundsCounter ++;
-
-    }
-
-    public static void positionMark( int position, int player, String[][] gameBoard) {
-
-
-        if (player == 1) {   // 1 = player(X); 2 = computer (O)
-            character = " X ";
-        } else {
-            character = " O ";
-        }
-
-
-        if (position >= 1 && position <= 9) {
-
-            switch (position) {
-
-                case 1:
-                    if (player == 1 && gameField[0][0] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                        playerPositionValid = false;
-                    } else if (player == 2 && gameField[0][0] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }
-                    else gameField[0][0] = character;
-                    printBoard(gameField);
-                    break;
-                case 2:
-                    if (player == 1 && gameField[0][2] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                        playerPositionValid = false;
-                    } else if (player == 2 && gameField[0][2] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[0][2] = character;
-                    printBoard(gameField);
-                    break;
-                case 3:
-                    if (player == 1 && gameField[0][4] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[0][4] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[0][4] = character;
-                    printBoard(gameField);
-                    break;
-                case 4:
-                    if (player == 1 && gameField[1][0] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[1][0]!= "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[1][0] = character;
-                    printBoard(gameField);
-                    break;
-                case 5:
-                    if (player == 1 && gameField[1][2]!= "___") {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[1][2] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[1][2] = character;
-                    printBoard(gameField);
-                    break;
-                case 6:
-                    if (player == 1 && gameField[1][4] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[1][4] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[1][4] = character;
-                    printBoard(gameField);
-                    break;
-                case 7:
-                    if (player == 1 && gameField[2][0] != "___" ) {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[2][0] != "___" ) {
-                        computerMove();
-                        roundsCounter--;
-                    }else
-                        gameField[2][0] = character;
-                    printBoard(gameField);
-                    break;
-                case 8:
-                    if (player == 1 && gameField[2][2] != "___" ) {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[2][2] != "___"  ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[2][2] = character;
-                    printBoard(gameField);
-                    break;
-                case 9:
-                    if (player == 1 && gameField[2][4] != "___") {
-                        window.println("Space is already occupied. Try again.");
-                    } else if (player == 2 && gameField[2][4] != "___" ) {
-                        computerMoveValid = false;
-                        computerMove();
-                    }else
-                        gameField[2][4] = character;
-                    printBoard(gameField);
-                    break;
-
-                default:
-                    break;
+        boolean repeatUntilValidGenerated = true;
+        while (repeatUntilValidGenerated) {
+            if (positionFilledUp[computerMove - 1]) {//repeat until computer picks an unoccupied position
+                computerMove = computerMoves();
+                continue;
             }
-        } else {
-            window.println("Invalid input. Try again.");
+            markPosition(computerMarker, computerMove);
+            repeatUntilValidGenerated = false;
         }
-    }
 
-    public static int computerMove() {
-
-        while (computerMoveValid == false) {
-            computerMove = (int) Math.round(Math.random() * 9);
-
-            if (computerMove == move || computerMove == 0 /* gameField[row][col] == character*/) {
-                computerMoveValid = false;
-
-            }else
-                computerMoveValid = true;
-        }
-        System.out.println(move + "  " + computerMove);
-        return computerMove;
-    }
-
-    public static boolean winCheck() throws InterruptedException {
-        if (
-            (gameField[0][0] == " X " && gameField[0][2] == " X " && gameField[0][4] == " X ")
-            ||
-            (gameField[1][0] == " X " && gameField[1][2] == " X " && gameField[1][4] == " X ")
-            ||
-            (gameField[2][0] == " X " && gameField[2][2] == " X " && gameField[2][4] == " X ")
-            ||
-            (gameField[0][0] == " X " && gameField[1][0] == " X " && gameField[2][0] == " X ")
-            ||
-            (gameField[0][2] == " X " && gameField[1][2] == " X " && gameField[2][2] == " X ")
-            ||
-            (gameField[0][4] == " X " && gameField[1][4] == " X " &&  gameField[2][4] == " X ")
-            ||
-            (gameField[0][0] == " X " && gameField[1][2] == " X " && gameField[2][4] == " X ")
-            ||
-            (gameField[0][4] == " X " && gameField[1][2] == " X " && gameField[2][0] == " X ")
-        )
-        {
-            window.print("Congratulations. You win!!");
-            return redo();
-        }
-        else if (
-            (gameField[0][0] == " O " && gameField[0][2] == " O " && gameField[0][4] == " O ")
-            ||
-            (gameField[1][0] == " O " && gameField[1][2] == " O " && gameField[1][4] == " O ")
-            ||
-            (gameField[2][0] == " O " && gameField[2][2] == " O " && gameField[2][4] == " O ")
-            ||
-            (gameField[0][0] == " O " && gameField[1][0] == " O " && gameField[2][0] == " O ")
-            ||
-            (gameField[0][2] == " O " && gameField[1][2] == " O " && gameField[2][2] == " O ")
-            ||
-            (gameField[0][4] == " O " && gameField[1][4] == " O " && gameField[2][4] == " O ")
-            ||
-            (gameField[0][0] == " O " && gameField[1][2] == " O " && gameField[2][4] == " O ")
-            ||
-            (gameField[0][4] == " O " && gameField[1][2] == " O " && gameField[2][0] == " O ")
-        )
-        {
-            window.print("Computer wins!. Better luck next time :)");
-            return redo();
-        }
-        else if (roundsCounter >= 9) {
-            window.println();
-            window.print("It's a Tie. Tough luck, well played. Game over.");
-            return redo();
-        }else {
-            window.println();
-            window.print("Next");
-            Thread.sleep(1000);
-        }
-        return true;
-
-    }
-
-    public static boolean redo() throws InterruptedException {
 
         window.println();
-        window.print("Do you like to play again? (y/n) : ");
+        window.println("Computer moved: " + computerMove);
+        printEquals(17);
+
+        //Verdict
+        try {
+            int matchResult = winCheck();
+            if (matchResult == humanWins || matchResult == computerWins || matchResult == itsATie) {
+                if (!rematch()) {
+                    throw new GameCompletedException("Game Over");
+                }
+            }
+        } catch (GameCompletedException e) {
+            window.println(e.getMessage());
+            System.exit(0);
+        }
+
+        roundsCounter = roundsCounter++;
+
+    }
+
+    public static void markPosition(String character, int position) {
+
+        switch (position) {
+            case 1:
+                gameField[0][0] = character;
+                break;
+            case 2:
+                gameField[0][2] = character;
+                break;
+            case 3:
+                gameField[0][4] = character;
+                break;
+            case 4:
+                gameField[1][0] = character;
+                break;
+            case 5:
+                gameField[1][2] = character;
+                break;
+            case 6:
+                gameField[1][4] = character;
+                break;
+            case 7:
+                gameField[2][0] = character;
+                break;
+            case 8:
+                gameField[2][2] = character;
+                break;
+            case 9:
+                gameField[2][4] = character;
+                break;
+            default:
+                break;
+        }
+        printBoard(gameField);
+        positionFilledUp[position - 1] = true;
+    }
+
+    public static int computerMoves() {
+
+        int[] items = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9};
+        int randomIndex = new Random().nextInt(items.length);
+        return items[randomIndex];
+    }
+
+    public static int winCheck() throws InterruptedException, GameCompletedException {
+
+        if (
+                (gameField[0][0] == " X " && gameField[0][2] == " X " && gameField[0][4] == " X ")
+                        ||
+                        (gameField[1][0] == " X " && gameField[1][2] == " X " && gameField[1][4] == " X ")
+                        ||
+                        (gameField[2][0] == " X " && gameField[2][2] == " X " && gameField[2][4] == " X ")
+                        ||
+                        (gameField[0][0] == " X " && gameField[1][0] == " X " && gameField[2][0] == " X ")
+                        ||
+                        (gameField[0][2] == " X " && gameField[1][2] == " X " && gameField[2][2] == " X ")
+                        ||
+                        (gameField[0][4] == " X " && gameField[1][4] == " X " && gameField[2][4] == " X ")
+                        ||
+                        (gameField[0][0] == " X " && gameField[1][2] == " X " && gameField[2][4] == " X ")
+                        ||
+                        (gameField[0][4] == " X " && gameField[1][2] == " X " && gameField[2][0] == " X ")
+        ) {
+            Thread.sleep(2000);
+            window.print("Congratulations. You WIN!!");
+            return humanWins;
+        } else if (
+                (gameField[0][0] == " O " && gameField[0][2] == " O " && gameField[0][4] == " O ")
+                        ||
+                        (gameField[1][0] == " O " && gameField[1][2] == " O " && gameField[1][4] == " O ")
+                        ||
+                        (gameField[2][0] == " O " && gameField[2][2] == " O " && gameField[2][4] == " O ")
+                        ||
+                        (gameField[0][0] == " O " && gameField[1][0] == " O " && gameField[2][0] == " O ")
+                        ||
+                        (gameField[0][2] == " O " && gameField[1][2] == " O " && gameField[2][2] == " O ")
+                        ||
+                        (gameField[0][4] == " O " && gameField[1][4] == " O " && gameField[2][4] == " O ")
+                        ||
+                        (gameField[0][0] == " O " && gameField[1][2] == " O " && gameField[2][4] == " O ")
+                        ||
+                        (gameField[0][4] == " O " && gameField[1][2] == " O " && gameField[2][0] == " O ")
+        ) {
+            Thread.sleep(2000);
+            window.print("Yay! The computer is the Winner. Better luck next time :)");
+            return computerWins;
+        } else if (roundsCounter >= 9) {
+            Thread.sleep(1000);
+            window.println();
+            window.print("It's a Tie. Tough luck, but well played. Game over.");
+            return itsATie;
+        }
+        window.println();
+        window.print("Now ");
+        Thread.sleep(1000);
+
+        return nextMove;
+
+    }
+
+    public static boolean rematch() throws InterruptedException {
+
+        window.println();
+        window.print("Do you like to continue the game? (y/n) : ");
 
         userInput = window.readLine();
-        //TODO - Add try catch for invalid inputs
         if (userInput.equalsIgnoreCase("n")) {
+            window.println("");
+            Thread.sleep(1000);
             window.print("It was a pleasure playing with you. Looking forward to meet you again. Thank you!");
             Thread.sleep(1000);
             return false;
+        } else {
+            for (roundsCounter = 0; roundsCounter <= 9; ) {
+                window.clear();
+                gameField = cleanGameField;
+                positionFilledUp = new boolean[]{false, false, false, false, false, false, false, false, false};
+                printBoard(gameField);
+                playGame();
+            }
+            return true;
         }
-        return true;
     }
 
 }
