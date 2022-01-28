@@ -2,7 +2,7 @@ package animation;
 import hsa2.GraphicsConsole;
 //https://github.com/salamander2/HSA2
 
-public class TicTacToe {
+public class TicTacToeMain {
 
     static GraphicsConsole window;
     static char gameBoard;
@@ -97,7 +97,7 @@ public class TicTacToe {
         }
 
         window.print("Computer to move in ");
-        addDelayInSeconds(5);
+        addDelayInSeconds(3);
         printEquals(20);
 
         computerMove();
@@ -110,14 +110,14 @@ public class TicTacToe {
         positionMark(computerMove, 2, gameField);
         computerMoveValid = false;
         playerPositionValid = false;
-        winCheck();
+        if (winCheck() == false) {
+            System.exit(0);
+        };
         roundsCounter = roundsCounter ++;
 
     }
 
-
     public static void positionMark( int position, int player, String[][] gameBoard) {
-
 
 
         if (player == 1) {   // 1 = player(X); 2 = computer (O)
@@ -137,8 +137,9 @@ public class TicTacToe {
                         playerPositionValid = false;
                     } else if (player == 2 && gameField[0][0] != "___" ) {
                         computerMoveValid = false;
-                        computerMove();     }else
-                        gameField[0][0] = character;
+                        computerMove();
+                    }
+                    else gameField[0][0] = character;
                     printBoard(gameField);
                     break;
                 case 2:
@@ -230,6 +231,7 @@ public class TicTacToe {
             window.println("Invalid input. Try again.");
         }
     }
+
     public static int computerMove() {
 
         while (computerMoveValid == false) {
@@ -245,91 +247,75 @@ public class TicTacToe {
         return computerMove;
     }
 
-
     public static boolean winCheck() throws InterruptedException {
-        if (gameField[0][0] == " X " &&
-                gameField[0][2] == " X " &&
-                gameField[0][4] == " X ") {
-            window.print("You win!");
-        } else if(gameField[1][0] == " X " &&
-                gameField[1][2] == " X " &&
-                gameField[1][4] == " X ")  {
-            window.print("You win!");
-        } else if(gameField[2][0] == " X " &&
-                gameField[2][2] == " X " &&
-                gameField[2][4] == " X ")  {
-            window.print("You win!");
-        }else if(gameField[0][0] == " X " &&
-                gameField[1][0] == " X " &&
-                gameField[2][0] == " X ")  {
-            window.print("You win!");
-        }else if(gameField[0][2] == " X " &&
-                gameField[1][2] == " X " &&
-                gameField[2][2] == " X ")  {
-            window.print("You win!");
-        }else if(gameField[0][4] == " X " &&
-                gameField[1][4] == " X " &&
-                gameField[2][4] == " X ")  {
-            window.print("You win!");
-        }else if(gameField[0][0] == " X " &&
-                gameField[1][2] == " X " &&
-                gameField[2][4] == " X ")  {
-            window.print("You win!");
-        }else if(gameField[0][4] == " X " &&
-                gameField[1][2] == " X " &&
-                gameField[2][0] == " X ")  {
-            window.print("You win!");
-
-        } else if (gameField[0][0] == " O " &&
-                gameField[0][2] == " O " &&
-                gameField[0][4] == " O ") {
-            window.print("Computer wins!");
-        } else if(gameField[1][0] == " O " &&
-                gameField[1][2] == " O " &&
-                gameField[1][4] == " O ")  {
-            window.print("Computer wins!");
-        } else if(gameField[2][0] == " O " &&
-                gameField[2][2] == " O " &&
-                gameField[2][4] == " O ")  {
-            window.print("Computer wins!");
-        }else if(gameField[0][0] == " O " &&
-                gameField[1][0] == " O " &&
-                gameField[2][0] == " O ")  {
-            window.print("Computer wins!");
-        }else if(gameField[0][2] == " O " &&
-                gameField[1][2] == " O " &&
-                gameField[2][2] == " O ")  {
-            window.print("Computer wins!");
-        }else if(gameField[0][4] == " O " &&
-                gameField[1][4] == " O " &&
-                gameField[2][4] == " O ")  {
-            window.print("Computer wins!");
-        }else if(gameField[0][0] == " O " &&
-                gameField[1][2] == " O " &&
-                gameField[2][4] == " O ")  {
-            window.print("Computer wins!");
-        }else if(gameField[0][4] == " O " &&
-                gameField[1][2] == " O " &&
-                gameField[2][0] == " O ")  {
-            window.print("Computer wins!");
-
-        } else if (roundsCounter >= 9) {
+        if (
+            (gameField[0][0] == " X " && gameField[0][2] == " X " && gameField[0][4] == " X ")
+            ||
+            (gameField[1][0] == " X " && gameField[1][2] == " X " && gameField[1][4] == " X ")
+            ||
+            (gameField[2][0] == " X " && gameField[2][2] == " X " && gameField[2][4] == " X ")
+            ||
+            (gameField[0][0] == " X " && gameField[1][0] == " X " && gameField[2][0] == " X ")
+            ||
+            (gameField[0][2] == " X " && gameField[1][2] == " X " && gameField[2][2] == " X ")
+            ||
+            (gameField[0][4] == " X " && gameField[1][4] == " X " &&  gameField[2][4] == " X ")
+            ||
+            (gameField[0][0] == " X " && gameField[1][2] == " X " && gameField[2][4] == " X ")
+            ||
+            (gameField[0][4] == " X " && gameField[1][2] == " X " && gameField[2][0] == " X ")
+        )
+        {
+            window.print("Congratulations. You win!!");
+            return redo();
+        }
+        else if (
+            (gameField[0][0] == " O " && gameField[0][2] == " O " && gameField[0][4] == " O ")
+            ||
+            (gameField[1][0] == " O " && gameField[1][2] == " O " && gameField[1][4] == " O ")
+            ||
+            (gameField[2][0] == " O " && gameField[2][2] == " O " && gameField[2][4] == " O ")
+            ||
+            (gameField[0][0] == " O " && gameField[1][0] == " O " && gameField[2][0] == " O ")
+            ||
+            (gameField[0][2] == " O " && gameField[1][2] == " O " && gameField[2][2] == " O ")
+            ||
+            (gameField[0][4] == " O " && gameField[1][4] == " O " && gameField[2][4] == " O ")
+            ||
+            (gameField[0][0] == " O " && gameField[1][2] == " O " && gameField[2][4] == " O ")
+            ||
+            (gameField[0][4] == " O " && gameField[1][2] == " O " && gameField[2][0] == " O ")
+        )
+        {
+            window.print("Computer wins!. Better luck next time :)");
+            return redo();
+        }
+        else if (roundsCounter >= 9) {
             window.println();
-            window.print("Tied. Game over.");
-            return false;
+            window.print("It's a Tie. Tough luck, well played. Game over.");
+            return redo();
         }else {
             window.println();
-            window.print("Verdict in ");
-            addDelayInSeconds(3);
-            window.println();
-            window.print("It's a tie");
+            window.print("Next");
+            Thread.sleep(1000);
         }
-        return false;
+        return true;
 
     }
 
-    public static void redo() {
+    public static boolean redo() throws InterruptedException {
+
+        window.println();
         window.print("Do you like to play again? (y/n) : ");
+
+        userInput = window.readLine();
+        //TODO - Add try catch for invalid inputs
+        if (userInput.equalsIgnoreCase("n")) {
+            window.print("It was a pleasure playing with you. Looking forward to meet you again. Thank you!");
+            Thread.sleep(1000);
+            return false;
+        }
+        return true;
     }
 
 }
