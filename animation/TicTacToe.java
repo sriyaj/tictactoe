@@ -1,7 +1,6 @@
 package assignments;
 
 import hsa2.GraphicsConsole;
-
 import java.awt.*;
 import java.util.Random;
 
@@ -12,11 +11,10 @@ class GameCompletedException extends Exception {
     }
 }
 
-
 public class TicTacToe {
 
-    static GraphicsConsole window;
-    static GraphicsConsole window2;
+    static GraphicsConsole window;  //game window
+    static GraphicsConsole window2; //guide window
     //gameField is used when the game is actually played.
     static String[][] gameField = {
             {"___", "|", "___", "|", "___"},
@@ -24,7 +22,7 @@ public class TicTacToe {
             {"___", "|", "___", "|", "___"}
     };
 
-    static String[][] menuField = {
+    static String[][] guideField = {
             {"_1_", "|", "_2_", "|", "_3_"},
             {"_4_", "|", "_5_", "|", "_6_"},
             {"_7_", "|", "_8_", "|", "_9_"}
@@ -40,23 +38,23 @@ public class TicTacToe {
     static String userInput;
 
     static int nextMove = 1;
-    static int humanWins = 2;
+    static int playerWins = 2;
     static int computerWins = 3;
     static int itsATie = 4;
 
     public static void main(String[] args) throws InterruptedException, GameCompletedException {
 
-        window2 = new GraphicsConsole(300, 300, 20, "Menu guide");
+        window2 = new GraphicsConsole(300, 300, 15, "guideBoard");
         window2.setLocation(100, 100);
         window2.setBackgroundColor(Color.YELLOW);
 
-        menuField = new String[][]{
+        guideField = new String[][]{
                 {"_1_", "|", "_2_", "|", "_3_"},
                 {"_4_", "|", "_5_", "|", "_6_"},
                 {"_7_", "|", "_8_", "|", "_9_"}
         };
 
-        menuBoard(menuField);
+        menuBoard(guideField);
         window = new GraphicsConsole(300, 300, 12, "Welcome to Tic Tac Toe");
         window.setLocation(500, 100);
 
@@ -81,6 +79,7 @@ public class TicTacToe {
 
     }
 
+    //creates a guide game board with position numbers for reference
     public static void menuBoard(String[][] gameBoard) {
 
         for (String[] row : gameBoard) {
@@ -98,6 +97,7 @@ public class TicTacToe {
 
     }
 
+ //prints the game board that will be used while playing   
     public static void printBoard(String[][] gameBoard) {
 
         for (String[] row : gameBoard) {
@@ -125,7 +125,7 @@ public class TicTacToe {
         }
         window.println();
     }
-
+//checks if both computer/player have made valid moves, and marks it on the game board
     public static void playGame() throws InterruptedException, NumberFormatException {
 
         String playerMarker = " X ";
@@ -171,7 +171,7 @@ public class TicTacToe {
         	 /* if a winner is declared or the game is tied,
             the program throws an exception, and ends the game.*/
             int matchResult = winCheck();
-            if (matchResult == humanWins || matchResult == computerWins || matchResult == itsATie) {
+            if (matchResult == playerWins || matchResult == computerWins || matchResult == itsATie) {
                 if (!rematch()) {
                     throw new GameCompletedException("Game Over");
                 }
@@ -216,7 +216,7 @@ public class TicTacToe {
         //checks if the computer has won against the player after its move, or the game has tied
         try {
             int matchResult = winCheck();
-            if (matchResult == humanWins || matchResult == computerWins || matchResult == itsATie) {
+            if (matchResult == playerWins || matchResult == computerWins || matchResult == itsATie) {
                 if (!rematch()) {
                     throw new GameCompletedException("Game Over");
                 }
@@ -300,7 +300,7 @@ public class TicTacToe {
         ) {
             Thread.sleep(2000);
             window.print("Congratulations. You WIN!!");
-            return humanWins;
+            return playerWins;
         } else if (
                 (gameField[0][0] == " O " && gameField[0][2] == " O " && gameField[0][4] == " O ")
                         ||
@@ -324,13 +324,13 @@ public class TicTacToe {
         } else if (roundsCounter >= 9) { //When all rounds are up, and no winners are found, declare tie.
             Thread.sleep(1000);
             window.println();
-            window.print("We have a Tie. Well played and game over.");
+            window.print("Tie. Game's over.");
             return itsATie;
         }
         window.println();
         Thread.sleep(1000);
 
-        return nextMove; //player/computer move switch
+        return nextMove; //player / computer move switch
 
     }
 
@@ -338,13 +338,13 @@ public class TicTacToe {
     public static boolean rematch() throws InterruptedException {
 
         window.println();
-        window.println("Press any key to play a new game, 'n' to quit");
+        window.println("Press any letter to play a new game, 'n' to quit");
 
         userInput = window.readLine();
         if (userInput.equalsIgnoreCase("n")) {
             window.println("");
             Thread.sleep(1000);
-            window.showDialog("Thank you for playing with me. Have a nice day. Bye!", "Thank you");
+            window.showDialog("Thank you for playing!", "Thank you");
             Thread.sleep(1000);
             return false;
         } else {
