@@ -197,6 +197,9 @@ public class TicTacToe {
          */
         boolean repeatUntilValidGenerated = true;
         while (repeatUntilValidGenerated) {
+            if (roundsCounter > 9) {// This is a tie
+                break;
+            }
             if (positionFilledUp[computerMove - 1]) {
                 computerMove = computerMoves();
                 continue;
@@ -227,9 +230,9 @@ public class TicTacToe {
 
     }
 
-    /*marks the player/computer's move on the empty game board with their respective characters
-     * 'X' => player   'O' => computer
-     */
+    /* Marks the player/computer's move on the empty game board with their respective characters
+     * 'X' => player
+     * 'O' => computer*/
     public static void markPosition(String character, int position) {
 
         switch (position) {
@@ -275,7 +278,7 @@ public class TicTacToe {
         return items[randomIndex];
     }
 
-    //Method checks for a winner
+    // Method checks for a winner
     public static int winCheck() throws InterruptedException, GameCompletedException {
 
         if (
@@ -318,21 +321,20 @@ public class TicTacToe {
             Thread.sleep(2000);
             window.print("Computer wins. Better luck next time :(");
             return computerWins;
-        } else if (roundsCounter >= 9) { //when all rounds are up, and no winners are found, declares tie.
+        } else if (roundsCounter >= 9) { //When all rounds are up, and no winners are found, declare tie.
             Thread.sleep(1000);
             window.println();
-            window.print("It's a Tie. Game over.");
+            window.print("We have a Tie. Well played and game over.");
             return itsATie;
         }
         window.println();
-        window.print("---");
         Thread.sleep(1000);
 
         return nextMove; //player/computer move switch
 
     }
 
-    //asks the player if they want to replay the game, and resets the game board if they wish to do so
+    // Asks the player if they want to replay the game, and resets the game board if they wish to do so
     public static boolean rematch() throws InterruptedException {
 
         window.println();
